@@ -2,6 +2,7 @@ library postgresql;
 
 import 'dart:async';
 import 'package:postgresql/src/postgresql_impl/postgresql_impl.dart' as impl;
+import 'dart:collection';
 
 /// Connect to a PostgreSQL database.
 /// 
@@ -92,6 +93,11 @@ abstract class Connection {
   /// affected by the sql command. Indentical to [query] apart from the
   /// information returned.
   Future<int> execute(String sql, [values]);
+
+
+  /// Support for NOTIFY/LISTEN
+  /// A queue of received NOTIFY entries.
+  Future<Queue<Notification>> getNotifications();
 
 
   /// Allow multiple queries to be run in a transaction. The user must wait for
@@ -364,6 +370,16 @@ class Isolation {
 @deprecated const TRANSACTION_NONE = TransactionState.none;
 @deprecated const TRANSACTION_UNKNOWN = TransactionState.unknown;
 
+class Notification {
+  String _condition, _text;
+  int _pid;
+
+  int get pid => _pid;
+  String get condition => _condition;
+  String get text => _text;
+
+  Notification(this._pid, this._condition, this._text);
+}
 
 class PostgresqlException implements Exception {
   
